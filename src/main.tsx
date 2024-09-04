@@ -1,8 +1,9 @@
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import UserManage from "./pages/Book/index";
+import BookManage from "./pages/Book/index";
 import Login from "./pages/Login/index";
 import Register from "./pages/Register";
+import './index.css'
 
 const routes = [
   {
@@ -14,8 +15,8 @@ const routes = [
     element: <Register />,
   },
   {
-    path: "/",
-    element: <UserManage />,
+    path: "/book",
+    element: <BookManage />,
   },
 ];
 

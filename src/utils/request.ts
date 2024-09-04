@@ -1,11 +1,3 @@
-// import axios from "axios";
-
-// export const axiosInstance = axios.create({
-//     baseURL: 'http://localhost:3000/',
-//     timeout: 3000,
-    
-// });
-
 import { message } from 'antd';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
@@ -36,6 +28,7 @@ export const createAxiosByinterceptors = (config?: AxiosRequestConfig): AxiosIns
             if (data?.success === false) {
                 message.error(data?.message);
             }
+
             return data;
         },
         (error) => {
@@ -44,6 +37,7 @@ export const createAxiosByinterceptors = (config?: AxiosRequestConfig): AxiosIns
             if (data?.success === false) {
                 message.error(data?.message);
             }
+
             return Promise.reject(error);
         }
     );
