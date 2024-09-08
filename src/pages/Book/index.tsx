@@ -2,7 +2,7 @@ import { SetStateAction, useEffect, useState } from 'react';
 import { Button, Card, Avatar, Form, Input, message } from 'antd';
 import CreateModal from './CreateModal.tsx';
 import { UpdateBook } from './interface.ts';
-import { list } from './api';
+import { list, detail, del } from './api';
 import './index.css';
 
 const { Meta } = Card;
@@ -12,8 +12,9 @@ const BookManage = () => {
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [name, setName] = useState<string>('');
     const [modalType, setModalType] = useState<string>('create');
+    const [record, setRecord] = useState<UpdateBook>();
 
-    async function fetchData() {
+    const fetchList = async () => {
         try {
             const resp = await list(name);
 
@@ -23,14 +24,25 @@ const BookManage = () => {
         } catch (e) {
             message.error(e.response.data.message);
         }
-    }
+    };
 
     useEffect(() => {
-        fetchData();
+        fetchList();
     }, [name]);
 
     const onSearch = (values: { name: SetStateAction<string> }) => {
         setName(values.name);
+    };
+
+    const fetchDetail = async (id: number) => {
+        const resp = await detail(id);
+        console.log('detail-data:', resp);
+    };
+
+    const onDelete = async (id: number) => {
+        const resp = await del(id);
+        console.log('resp', resp);
+        fetchList();
     };
 
     return (
@@ -66,7 +78,7 @@ const BookManage = () => {
                     </Form>
                 </div>
                 <div className="book-list">
-                    {bookList?.map(book => {
+                    {bookList?.map(item => {
                         return (
                             <Card
                                 className="card"
@@ -75,23 +87,24 @@ const BookManage = () => {
                                 cover={
                                     <img
                                         alt="example"
-                                        src={`http://localhost:3000/${book.avatar}`}
+                                        src={`http://localhost:3000/${item.avatar}`}
                                     />
                                 }
                             >
                                 <Meta
                                     avatar={
                                         <Avatar
-                                            src={`http://localhost:3000/${book.avatar}`}
+                                            src={`http://localhost:3000/${item.avatar}`}
                                         />
                                     }
-                                    title={book.name}
-                                    description={book.description}
+                                    title={item.name}
+                                    description={item.description}
                                 />
                                 <div className="links">
                                     <a
                                         onClick={() => {
-                                            setModalType('detail');
+                                            setRecord(item);
+                                            fetchDetail(item.id);
                                         }}
                                     >
                                         详情
@@ -100,12 +113,14 @@ const BookManage = () => {
                                         onClick={() => {
                                             setModalOpen(true);
                                             setModalType('update');
-                                            console.log('item=====>', book)
+                                            setRecord(item);
                                         }}
                                     >
                                         编辑
                                     </a>
-                                    <a href="#">删除</a>
+                                    <a onClick={() => onDelete(item.id)}>
+                                        删除
+                                    </a>
                                 </div>
                             </Card>
                         );
@@ -116,8 +131,9 @@ const BookManage = () => {
             <CreateModal
                 isOpen={modalOpen}
                 modalType={modalType}
+                record={record}
                 handleClose={() => {
-                    fetchData();
+                    fetchList();
                     setModalOpen(false);
                 }}
             />

@@ -1,7 +1,8 @@
+import { useEffect } from 'react';
 import { Form, Input, message, Modal } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { Coverupload } from '../../components/index';
-import { ModalProps, CreateBook, UpdateBook } from './interface';
+import { ModalProps, UpdateBook } from './interface';
 import { create, update } from './api';
 
 const { TextArea } = Input;
@@ -12,34 +13,47 @@ const layout = {
 };
 
 const CreateModal = (props: ModalProps) => {
-    const [form] = useForm<CreateBook>();
+    const { modalType, isOpen, record, handleClose } = props;
+    const [form] = useForm<UpdateBook>();
 
     const handleOk = async () => {
         await form.validateFields();
         const values = form.getFieldsValue();
+        const params =
+            modalType === 'create' ? values : { ...values, id: record.id };
 
         try {
-            const apiUrl = props.modalType === 'create' ? create : update;
-            const resp = await apiUrl(values);
+            const apiUrl = modalType === 'create' ? create : update;
+            const resp = await apiUrl(params);
             if (resp.success === true) {
-                message.success('创建成功');
+                message.success('操作成功');
                 form.resetFields();
-                props.handleClose();
+                handleClose();
             }
         } catch (error) {
             console.log(error);
         }
     };
 
+    useEffect(() => {
+        if (record && modalType === 'update') {
+            form.setFieldsValue({
+                ...record,
+            });
+        } else {
+            form.resetFields();
+        }
+    }, [record, modalType]);
+
     return (
         <Modal
-            title={props.modalType === 'create' ? '添加英雄' : '编辑英雄'}
-            open={props.isOpen}
+            title={modalType === 'create' ? '添加英雄' : '编辑英雄'}
+            open={isOpen}
             onOk={handleOk}
-            onCancel={() => props.handleClose()}
+            onCancel={() => handleClose()}
             okText={'创建'}
         >
-            <Form form={form} colon={false} {...layout}>
+            <Form form={form} {...layout}>
                 <Form.Item
                     label="名称"
                     name="name"
@@ -59,7 +73,7 @@ const CreateModal = (props: ModalProps) => {
                     name="description"
                     rules={[{ required: true, message: '请输入介绍!' }]}
                 >
-                    <TextArea />
+                    <TextArea  autoSize={{ minRows: 4, maxRows: 6 }}/>
                 </Form.Item>
                 <Form.Item
                     label="头像"

@@ -1,6 +1,7 @@
 export interface ModalProps {
     isOpen: boolean;
     modalType: string;
+    record: UpdateBook,
     handleClose: Function;
 }
 

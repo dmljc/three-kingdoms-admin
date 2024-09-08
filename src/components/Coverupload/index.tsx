@@ -39,7 +39,6 @@ const dragger = (
 const CoverUpload = (props: CoverUploadProps) =>{
     onChange = props.onChange!;
 
-    console.log('props.value====:', props.value)
     return props?.value ? (
         <div>
             <img
